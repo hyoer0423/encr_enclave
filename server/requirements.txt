@@ -1,0 +1,9 @@
+boto3==1.16.9
+certifi==2020.6.20
+chardet==3.0.4
+idna==2.10
+requests==2.24.0
+urllib3==1.25.11
+aws_encryption_sdk==3.0.0
+aws-encryption-sdk-cli==1.1.3
+
