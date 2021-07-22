@@ -9,6 +9,7 @@ echo "127.0.0.1   kms.ap-northeast-1.amazonaws.com" >> /etc/hosts
 # Set library path to app directory for libnsm.so
 #pip3 install aws_encryption_sdk
 echo "HELLO"
+aws-encryption-cli --version
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/app
 
 aws-encryption-cli --version
