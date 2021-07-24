@@ -86,16 +86,16 @@ See [Architecture diagram](https://github.com/richardfan1126/nitro-enclave-pytho
 
    Find the following line, and take note the `enclave-cid` value   and **PCR0**
 
-   ```
+```
    Enclave Image successfully created.  
-{
+   {
   "Measurements": {
     "HashAlgorithm": "Sha384 { ... }",
     "PCR0": "fdd6b3c0e70ee927046ab974521362a7534a629fdccb195abc69147a133b27b8233ff9153b376af2dccf9503cb43246e",
     "PCR1": "c35e620586e91ed40ca5ce360eedf77ba673719135951e293121cb3931220b00f87b5a15e94e25c01fecd08fc9139342",
     "PCR2": "951c4c27d03d0777288f7de339abdd0640da15d454e0efbe8e29bac74a8e8ea06edda8401b6bb672b1b71d32b9bf6751"
   }
-}
+} 
 Start allocating memory...
 Started enclave with enclave-cid: 16, memory: 2600 MiB, cpu-ids: [1, 17]
 {
@@ -109,7 +109,7 @@ Started enclave with enclave-cid: 16, memory: 2600 MiB, cpu-ids: [1, 17]
   ],
   "MemoryMiB": 2600
 }
-   ```
+```
  
 
 1. creat [a KMS key](https://ap-northeast-1.console.aws.amazon.com/kms/home?region=ap-northeast-1#/kms/keys)
@@ -118,7 +118,7 @@ KMS_ADMINISTRATOR_ROLE allows you to manage the KMS key's Role
 PCR0_VALUE_FROM_EIF_BUILD previously recorded PCR0 value
 Policy like :
 ```
-{
+   {
     "Version": "2012-10-17",
     "Id": "key-consolepolicy-3",
     "Statement": [
@@ -179,8 +179,7 @@ Policy like :
             "Resource": "*"
         }
     ]
-}
-
+   }
 ```
  
 1. Open a new SSH session, run the `vsock-proxy` tool
@@ -191,13 +190,13 @@ Policy like :
 
 1. Open another SSH session, install python3 and the necessary packages for running client app
 
-   ```
+```
    $ yum install python3 -y
    $ cd encr_enclave/client
    $ python3 -m venv venv
    $ source venv/bin/activate
    $ pip install -r requirements.txt
-   ```
+```
 
 
 1. Run the client app, replace `<cid>` with the enclave CID you get in step 11
@@ -207,7 +206,7 @@ Policy like :
    ```
 1. output should be like:
 ```
-{'Plaintext': b'811505', 'Ciphertext': b"\x01\x02\x02\x00x\xae\x83ysZ\xfch%\x1a\x0b\x1d,%`\xec\x7f\x1a\x08>\xcfO\x9f\x98\xcah\xa9\xd9\xacb\xa6\x8e\x8e\x01\xe8xR<9.\xa3\xed\xcb\xd8PX0!W\xa4\x00\x00\x00d0b\x06\t*\x86H\x86\xf7\r\x01\x07\x06\xa0U0S\x02\x01\x000N\x06\t*\x86H\x86\xf7\r\x01\x07\x010\x1e\x06\t`\x86H\x01e\x03\x04\x01.0\x11\x04\x0c\xdc2\x15o\x9c\x0fq\x050\x8eW\xf0\x02\x01\x10\x80!w\xadV\xa6<7O\xf5o\xf3\xd1\x96\xc45\xa0\xf2n~gX'>B#\xf8\xf1o@f.X\x0e\xd6", 'Decryptedtext': '811505'}
+   {'Plaintext': b'811505', 'Ciphertext': b"\x01\x02\x02\x00x\xae\x83ysZ\xfch%\x1a\x0b\x1d,%`\xec\x7f\x1a\x08>\xcfO\x9f\x98\xcah\xa9\xd9\xacb\xa6\x8e\x8e\x01\xe8xR<9.\xa3\xed\xcb\xd8PX0!W\xa4\x00\x00\x00d0b\x06\t*\x86H\x86\xf7\r\x01\x07\x06\xa0U0S\x02\x01\x000N\x06\t*\x86H\x86\xf7\r\x01\x07\x010\x1e\x06\t`\x86H\x01e\x03\x04\x01.0\x11\x04\x0c\xdc2\x15o\x9c\x0fq\x050\x8eW\xf0\x02\x01\x10\x80!w\xadV\xa6<7O\xf5o\xf3\xd1\x96\xc45\xa0\xf2n~gX'>B#\xf8\xf1o@f.X\x0e\xd6", 'Decryptedtext': '811505'}
 ```
 
 1. If everthing is OK, you will see the the key ID and key state are shown on the screen.
