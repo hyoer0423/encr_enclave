@@ -1,5 +1,4 @@
 import socket
-from cryptography.hazmat.backends import default_backend
 import requests
 import json
 import subprocess
@@ -33,8 +32,6 @@ def cycle_string(key_arn, source_plaintext, botocore_session=None):
 
     # Decrypt the ciphertext
     cycled_plaintext, decrypted_header = client.decrypt(source=ciphertext, key_provider=master_key_provider)
-    print(ciphertext.decode('utf-8', errors="ignore"),cycled_plaintext.decode('utf-8', errors="ignore"))
-    return [ciphertext.decode('utf-8', errors="ignore"),cycled_plaintext.decode('utf-8', errors="ignore")]
 
 def set_config(credential):
     os.environ["AWS_ACCESS_KEY_ID"]=credential['access_key_id']
@@ -61,37 +58,39 @@ def aws_api_call(credential, key_arn):
     source_plaintext=str(source_plaintext)
     source_plaintext=str.encode(source_plaintext)
     #source_plaintext="Hello, KMS\!"
-    #ciphertext = client.encrypt(Plaintext=source_plaintext, KeyId=keyid,EncryptionAlgorithm='SYMMETRIC_DEFAULT')
-    get=cycle_string(key_arn=key_arn, source_plaintext=source_plaintext, botocore_session=botocore.session.Session())
+    ciphertext = client.encrypt(Plaintext=source_plaintext, KeyId=keyid,EncryptionAlgorithm='SYMMETRIC_DEFAULT')
+    #ciphertext=cycle_string(key_arn=key_arn, source_plaintext=source_plaintext, botocore_session=botocore.session.Session())
     keyid=key_arn
-    #cycled_plaintext = client.decrypt(CiphertextBlob=ciphertext['CiphertextBlob'], KeyId=keyid,EncryptionAlgorithm='SYMMETRIC_DEFAULT')
+    cycled_plaintext = client.decrypt(CiphertextBlob=ciphertext['CiphertextBlob'], KeyId=keyid,EncryptionAlgorithm='SYMMETRIC_DEFAULT')
     #cycled_plaintext = client.decrypt(CiphertextBlob=ciphertext, KeyId=keyid,EncryptionAlgorithm='SYMMETRIC_DEFAULT')
 
-    # print(cycled_plaintext)
-    # str_cipher=base64.b64encode(ciphertext['CiphertextBlob'])
-    # print(str_cipher.decode('utf-8'),type(str_cipher.decode('utf-8')))
+    print(cycled_plaintext)
+    str_cipher=base64.b64encode(ciphertext['CiphertextBlob'])
+    print(str_cipher.decode('utf-8'),type(str_cipher.decode('utf-8')))
     # Call the standalone kmstool through subprocess
-    # proc = subprocess.Popen(
-    #     [
-    #         "/app/kmstool_enclave_cli",
-    #         "--region", "ap-northeast-1",
-    #         "--proxy-port", "8000",
-    #         "--aws-access-key-id", "%s" % credential['access_key_id'],
-    #         "--aws-secret-access-key", "%s" % credential['secret_access_key'],
-    #         "--aws-session-token", "%s" % credential['token'],
-    #         "--ciphertext", "%s" % str_cipher.decode('utf-8'),
-    #     ],
-    #     stdout=subprocess.PIPE
-    # )
+    proc = subprocess.Popen(
+        [
+            "/app/kmstool_enclave_cli",
+            "--region", "ap-northeast-1",
+            "--proxy-port", "8000",
+            "--aws-access-key-id", "%s" % credential['access_key_id'],
+            "--aws-secret-access-key", "%s" % credential['secret_access_key'],
+            "--aws-session-token", "%s" % credential['token'],
+            "--ciphertext", "%s" % str_cipher.decode('utf-8'),
+        ],
+        stdout=subprocess.PIPE
+    )
 
-    # result = proc.communicate()[0]
-    # print(result)
+    result = proc.communicate()[0]
+    print(result)
     
     # Return some data from API response
     result={
         'Plaintext':source_plaintext,
-        'Ciphertext': get[0],
-        'Encrypted-CLI':get[1]}
+        'Ciphertext': str_cipher.decode('utf-8'),
+        'Encrypted-CLI': (base64.b64decode(result)).decode(),
+        'Encrypted—KMS':cycled_plaintext['Plaintext'].decode()
+    }
     return result
 
 def main():
@@ -123,7 +122,6 @@ def main():
         ciphertext = client_request['ciphertext']
 
         # Get data from AWS API call
-
         content = aws_api_call(credential, str(ciphertext))
         print(content)
         # Send the response back to parent instance
